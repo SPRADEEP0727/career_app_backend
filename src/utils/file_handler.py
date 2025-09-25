@@ -2,7 +2,6 @@ import os
 import tempfile
 import PyPDF2
 import pdfplumber
-import fitz  # PyMuPDF
 from typing import Optional
 
 class FileHandler:
@@ -42,15 +41,7 @@ class FileHandler:
         except Exception as e:
             print(f"pdfplumber failed: {e}")
         
-        # Method 2: Try PyMuPDF (good for most PDFs)
-        try:
-            text = self._extract_with_pymupdf(file_path)
-            if text.strip():
-                return text
-        except Exception as e:
-            print(f"PyMuPDF failed: {e}")
-        
-        # Method 3: Fallback to PyPDF2
+        # Method 2: Fallback to PyPDF2
         try:
             text = self._extract_with_pypdf2(file_path)
             if text.strip():
@@ -70,16 +61,6 @@ class FileHandler:
                     text += page_text + "\n"
         return text
     
-    def _extract_with_pymupdf(self, file_path: str) -> str:
-        """Extract text using PyMuPDF (fitz)"""
-        text = ""
-        doc = fitz.open(file_path)
-        for page_num in range(doc.page_count):
-            page = doc[page_num]
-            text += page.get_text() + "\n"
-        doc.close()
-        return text
-    
     def _extract_with_pypdf2(self, file_path: str) -> str:
         """Extract text using PyPDF2"""
         text = ""
@@ -95,18 +76,18 @@ class FileHandler:
             file_size = os.path.getsize(file_path)
             file_name = os.path.basename(file_path)
             
-            # Get PDF info
-            doc = fitz.open(file_path)
-            page_count = doc.page_count
-            metadata = doc.metadata
-            doc.close()
+            # Get PDF info using PyPDF2
+            with open(file_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                page_count = len(pdf_reader.pages)
+                metadata = pdf_reader.metadata or {}
             
             return {
                 "filename": file_name,
                 "size_bytes": file_size,
                 "size_mb": round(file_size / (1024 * 1024), 2),
                 "page_count": page_count,
-                "metadata": metadata
+                "metadata": dict(metadata) if metadata else {}
             }
         except Exception as e:
             return {
