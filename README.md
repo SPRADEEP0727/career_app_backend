@@ -246,12 +246,46 @@ pytest tests/ --cov=src --cov-report=html
 
 ## 🚢 Deployment
 
-### Local Development
+### Render (Recommended)
+
+This project is optimized for Render deployment with the included `render.yaml` configuration:
+
+1. **Connect Repository**
+   - Sign up at [Render.com](https://render.com)
+   - Connect your GitHub repository
+   - Render will automatically detect it as a Python web service
+
+2. **Configure Environment Variables**
+   Add these in your Render dashboard:
+   ```
+   OPENAI_API_KEY=your_openai_api_key_here
+   SECRET_KEY=your_secret_key_here
+   FLASK_ENV=production
+   FLASK_DEBUG=False
+   ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app
+   ```
+
+3. **Deploy**
+   - Push to main branch for automatic deployment
+   - Render will use `render.yaml` for configuration
+   - Alternatively, it will detect `Procfile` and `runtime.txt`
+
+The deployment includes:
+- Automatic dependency installation
+- Gunicorn WSGI server
+- Health check endpoint at `/health`
+- Production-ready configuration
+
+### Manual Deployment
+
+For other platforms:
+
+#### Local Development
 ```bash
 python app.py
 ```
 
-### Production
+#### Production with Gunicorn
 ```bash
 gunicorn --bind 0.0.0.0:5000 app:app
 ```
