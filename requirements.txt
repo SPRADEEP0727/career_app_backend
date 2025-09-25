@@ -15,8 +15,8 @@ pdfplumber==0.9.0
 # Removed PyMuPDF due to compilation issues on cloud platforms
 
 # Data Processing
-pandas==2.1.3
-numpy==1.25.2
+pandas==2.2.2
+numpy==1.26.4
 
 # File Handling and Utilities
 werkzeug==2.3.7
