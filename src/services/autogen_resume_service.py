@@ -15,16 +15,36 @@ class AutoGenResumeAnalysisService:
     def __init__(self):
         """Initialize the AutoGen resume analysis service with OpenAI"""
         # Set up OpenAI client
-        openai.api_key = Config.OPENAI_API_KEY
-        if not openai.api_key:
-            raise ValueError("OpenAI API key not found. Please set OPENAI_API_KEY in .env file")
-        
-        self.client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+        self.api_key = Config.OPENAI_API_KEY
+        self.client = None
         self.model = "gpt-4o-mini"
         self.temperature = 0.3
+        
+        # Initialize client only if API key is available
+        if self.api_key:
+            try:
+                openai.api_key = self.api_key
+                self.client = openai.OpenAI(api_key=self.api_key)
+                print("✅ OpenAI client initialized successfully")
+            except Exception as e:
+                print(f"⚠️ OpenAI client initialization failed: {e}")
+                self.client = None
+        else:
+            print("⚠️ OpenAI API key not found - service will return error responses until configured")
     
     def analyze_resume(self, resume_text: str, job_description: str = "") -> Dict:
         """Complete resume analysis using OpenAI GPT-4o-mini as multiple specialized agents"""
+        
+        # Check if OpenAI client is properly initialized
+        if not self.client:
+            return {
+                "error": "OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.",
+                "ats_score": {"overall_score": 0, "details": {}, "grade": "N/A", "interpretation": "API key required"},
+                "suggestions": {"improvements": ["Configure OpenAI API key"], "strengths": [], "missing_elements": []},
+                "analysis_timestamp": self._get_timestamp(),
+                "analysis_method": "AutoGen GPT-4o-mini Agents (API Key Missing)"
+            }
+        
         try:
             print(f"🤖 Starting AutoGen analysis for resume ({len(resume_text)} characters)")
             
