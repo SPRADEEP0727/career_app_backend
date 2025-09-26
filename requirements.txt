@@ -6,8 +6,8 @@ gunicorn==21.2.0
 # Environment and Configuration
 python-dotenv==1.0.0
 
-# AutoGen for AI Analysis (temporarily commented out to test pandas issue)
-# autogen-agentchat==0.7.4
+# OpenAI for AI Analysis (used directly, not via AutoGen)
+openai==1.51.2
 
 # PDF Processing - Cloud-friendly alternatives
 PyPDF2==3.0.1
