@@ -6,17 +6,12 @@ gunicorn==21.2.0
 # Environment and Configuration
 python-dotenv==1.0.0
 
-# AutoGen for AI Analysis
-autogen-agentchat==0.7.4
+# AutoGen for AI Analysis (temporarily commented out to test pandas issue)
+# autogen-agentchat==0.7.4
 
 # PDF Processing - Cloud-friendly alternatives
 PyPDF2==3.0.1
 pdfplumber==0.9.0
-# Removed PyMuPDF due to compilation issues on cloud platforms
-
-# Data Processing
-pandas==2.2.2
-numpy==1.26.4
 
 # File Handling and Utilities
 werkzeug==2.3.7
