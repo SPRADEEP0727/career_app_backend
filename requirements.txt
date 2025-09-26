@@ -7,7 +7,7 @@ gunicorn==21.2.0
 python-dotenv==1.0.0
 
 # OpenAI for AI Analysis (used directly, not via AutoGen)
-openai==1.51.2
+openai==1.35.15
 
 # PDF Processing - Cloud-friendly alternatives
 PyPDF2==3.0.1
