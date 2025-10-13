@@ -39,8 +39,6 @@ class AutoGenResumeAnalysisService:
         if not self.client:
             return {
                 "error": "OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.",
-                "ats_score": {"overall_score": 0, "details": {}, "grade": "N/A", "interpretation": "API key required"},
-                "suggestions": {"improvements": ["Configure OpenAI API key"], "strengths": [], "missing_elements": []},
                 "analysis_timestamp": self._get_timestamp(),
                 "analysis_method": "AutoGen GPT-4o-mini Agents (API Key Missing)"
             }
@@ -73,8 +71,6 @@ class AutoGenResumeAnalysisService:
             print(f"❌ AutoGen analysis failed: {str(e)}")
             return {
                 "error": f"AutoGen analysis failed: {str(e)}",
-                "ats_score": {"overall_score": 0, "details": {}},
-                "suggestions": {"improvements": [], "strengths": []},
                 "analysis_timestamp": self._get_timestamp(),
                 "analysis_method": "AutoGen GPT-4o-mini Agents (Failed)"
             }
@@ -335,19 +331,8 @@ class AutoGenResumeAnalysisService:
             
         except Exception as e:
             print(f"❌ Content Analysis Agent failed: {str(e)}")
-            # Fallback to basic analysis
-            words = text.split()
-            sentences = text.split('.')
-            
             return {
-                "word_count": len(words),
-                "sentence_count": len(sentences),
-                "character_count": len(text),
-                "average_words_per_sentence": round(len(words) / len(sentences), 2) if sentences else 0,
-                "sections_identified": ["Basic analysis due to AI error"],
-                "readability_score": 50.0,
-                "content_quality": "Analysis limited due to technical error",
-                "key_observations": ["Unable to complete full AI analysis"]
+                "error": f"Content analysis failed: {str(e)}"
             }
     
     def _call_gpt4_agent(self, prompt: str, agent_name: str) -> str:
@@ -406,76 +391,11 @@ class AutoGenResumeAnalysisService:
             return self._get_fallback_response(fallback_key, response)
     
     def _get_fallback_response(self, fallback_key: str, raw_response: str) -> Dict:
-        """Get fallback response structure when JSON parsing fails"""
-        if fallback_key == "ats_score":
-            return {
-                "overall_score": 50,
-                "max_score": 100,
-                "grade": "C",
-                "interpretation": "Partial analysis completed - some AI processing issues",
-                "detailed_scores": {"format_score": 15, "keywords_score": 10, "content_score": 15, "sections_score": 10},
-                "recommendations": ["Resume structure appears adequate", "Consider adding more specific details"],
-                "strengths": ["Document uploaded successfully"],
-                "areas_for_improvement": ["AI analysis encountered technical issues"],
-                "raw_ai_response": raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
-            }
-        elif fallback_key == "suggestions":
-            return {
-                "priority_improvements": ["AI analysis partially completed - manual review recommended"],
-                "content_suggestions": ["Consider adding more quantifiable achievements"],
-                "formatting_tips": ["Ensure consistent formatting throughout"],
-                "keyword_recommendations": ["Add relevant industry keywords"],
-                "strengths": ["Document processed successfully"],
-                "missing_elements": ["Unable to fully analyze due to technical issues"],
-                "raw_ai_response": raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
-            }
-        elif fallback_key == "keywords":
-            return {
-                "job_description_keywords": ["analysis", "incomplete"],
-                "resume_keywords": ["document", "processed"],
-                "matching_keywords": ["partial"],
-                "missing_keywords": ["ai_analysis_issue"],
-                "keyword_density": 0,
-                "match_percentage": 0,
-                "critical_missing_keywords": [],
-                "keyword_suggestions": ["Manual keyword analysis recommended"],
-                "industry_keywords": ["technical", "skills"],
-                "raw_ai_response": raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
-            }
-        elif fallback_key == "skills":
-            return {
-                "technical_skills": [
-                    {"name": "Technical Analysis", "level": "Intermediate", "years": 2, "category": "General"}
-                ],
-                "professional_skills": [
-                    {"name": "Problem Solving", "level": "Advanced", "years": 3, "category": "Professional"}
-                ],
-                "soft_skills": [
-                    {"name": "Communication", "level": "Intermediate", "years": 2, "category": "Interpersonal"}
-                ],
-                "certifications": [],
-                "all_skills": [
-                    {"name": "Technical Analysis", "level": "Intermediate", "years": 2, "category": "General"},
-                    {"name": "Problem Solving", "level": "Advanced", "years": 3, "category": "Professional"},
-                    {"name": "Communication", "level": "Intermediate", "years": 2, "category": "Interpersonal"}
-                ],
-                "skills_summary": {
-                    "total_skills": 3,
-                    "technical_count": 1,
-                    "professional_count": 1,
-                    "soft_skills_count": 1,
-                    "certifications_count": 0,
-                    "average_experience_years": 2.3,
-                    "skill_level_distribution": {"Advanced": 1, "Intermediate": 2}
-                },
-                "raw_ai_response": raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
-            }
-        else:
-            return {
-                "error": "AI response parsing failed",
-                "fallback_used": True,
-                "raw_ai_response": raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
-            }
+        """Return error when JSON parsing fails - no mock data"""
+        return {
+            "error": f"AI {fallback_key} analysis failed - unable to parse response",
+            "raw_ai_response": raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
+        }
     
     def extract_skills(self, resume_text: str) -> Dict:
         """Skills Extraction Agent - Extract and categorize skills from resume using GPT-4o-mini"""
